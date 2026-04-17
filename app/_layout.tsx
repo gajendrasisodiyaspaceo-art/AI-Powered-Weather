@@ -15,6 +15,7 @@ import {
 } from '@expo-google-fonts/poppins';
 import { NotoSansDevanagari_400Regular } from '@expo-google-fonts/noto-sans-devanagari';
 
+import { useAuthStore } from '../src/stores/useAuthStore';
 import { usePreferencesStore } from '../src/stores/usePreferencesStore';
 import { useFavoritesStore } from '../src/stores/useFavoritesStore';
 
@@ -31,14 +32,24 @@ export default function RootLayout() {
     NotoSansDevanagari_400Regular,
   });
 
+  const authStatus = useAuthStore((s) => s.status);
+  const initialize = useAuthStore((s) => s.initialize);
   const loadPreferences = usePreferencesStore((s) => s.loadPreferences);
   const loadFavorites = useFavoritesStore((s) => s.loadFavorites);
   const isDarkMode = usePreferencesStore((s) => s.preferences.isDarkMode);
 
+  // Initialize auth on mount
   useEffect(() => {
-    loadPreferences();
-    loadFavorites();
+    initialize();
   }, []);
+
+  // Load user data only when authenticated
+  useEffect(() => {
+    if (authStatus === 'authenticated') {
+      loadPreferences();
+      loadFavorites();
+    }
+  }, [authStatus]);
 
   useEffect(() => {
     if (fontError) throw fontError;
@@ -61,6 +72,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="splash" />
+          <Stack.Screen name="(auth)" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="permission" />
           <Stack.Screen name="(tabs)" />

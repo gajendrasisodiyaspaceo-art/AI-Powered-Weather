@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import LottieView from 'lottie-react-native';
@@ -6,35 +6,57 @@ import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { AppColors } from '../src/config/colors';
 import { AppConstants } from '../src/config/constants';
+import { useAuthStore } from '../src/stores/useAuthStore';
 import { usePreferencesStore } from '../src/stores/usePreferencesStore';
 
 export default function SplashScreen() {
   const router = useRouter();
+  const authStatus = useAuthStore((s) => s.status);
+  const preferencesStatus = usePreferencesStore((s) => s.status);
   const preferences = usePreferencesStore((s) => s.preferences);
-  const status = usePreferencesStore((s) => s.status);
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
+    if (hasNavigated.current) return;
+
     const navigate = async () => {
+      // Wait for splash animation
       await new Promise((resolve) => setTimeout(resolve, 2500));
 
-      if (status === 'loaded' && preferences.hasCompletedOnboarding) {
-        const { status: permStatus } = await Location.getForegroundPermissionsAsync();
-        if (permStatus === 'granted') {
-          router.replace('/(tabs)');
+      if (hasNavigated.current) return;
+
+      // Not authenticated → login
+      if (authStatus === 'unauthenticated') {
+        hasNavigated.current = true;
+        router.replace('/(auth)/login');
+        return;
+      }
+
+      // Authenticated → check onboarding
+      if (authStatus === 'authenticated') {
+        // Wait for preferences to load from Supabase
+        if (preferencesStatus !== 'loaded') return;
+
+        hasNavigated.current = true;
+
+        if (preferences.hasCompletedOnboarding) {
+          const { status: permStatus } = await Location.getForegroundPermissionsAsync();
+          if (permStatus === 'granted') {
+            router.replace('/(tabs)');
+          } else {
+            router.replace('/permission');
+          }
         } else {
-          router.replace('/permission');
+          router.replace('/onboarding');
         }
-      } else {
-        router.replace('/onboarding');
       }
     };
 
-    if (status === 'loaded' || status === 'initial') {
-      // Small delay to allow preferences to load
-      const timer = setTimeout(navigate, 100);
-      return () => clearTimeout(timer);
+    // Only navigate when auth has resolved
+    if (authStatus !== 'initial' && authStatus !== 'loading') {
+      navigate();
     }
-  }, [status]);
+  }, [authStatus, preferencesStatus]);
 
   return (
     <LinearGradient

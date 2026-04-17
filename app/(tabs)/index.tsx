@@ -226,9 +226,10 @@ export default function HomeScreen() {
       )}
 
       {/* City search bottom sheet */}
-      {showCitySearch && (
-        <CitySearchSheet onClose={() => setShowCitySearch(false)} />
-      )}
+      <CitySearchSheet
+        visible={showCitySearch}
+        onClose={() => setShowCitySearch(false)}
+      />
     </View>
   );
 }

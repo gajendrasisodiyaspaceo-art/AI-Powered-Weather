@@ -9,10 +9,12 @@ import {
   Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { AppColors } from '../../src/config/colors';
 import { AppConstants } from '../../src/config/constants';
 import { AppTextStyles } from '../../src/config/typography';
 import { useAppTheme } from '../../src/hooks/useAppTheme';
+import { useAuthStore } from '../../src/stores/useAuthStore';
 import { usePreferencesStore } from '../../src/stores/usePreferencesStore';
 import { useFavoritesStore } from '../../src/stores/useFavoritesStore';
 
@@ -63,7 +65,10 @@ function ChipGroup({
 }
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const theme = useAppTheme();
+  const user = useAuthStore((s) => s.user);
+  const signOut = useAuthStore((s) => s.signOut);
   const preferences = usePreferencesStore((s) => s.preferences);
   const {
     updateDietPreference,
@@ -85,6 +90,17 @@ export default function SettingsScreen() {
     ]);
   };
 
+  const handleLogout = () => {
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: () => signOut(),
+      },
+    ]);
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -93,6 +109,21 @@ export default function SettingsScreen() {
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Profile Card */}
+        <View style={[styles.profileCard, { backgroundColor: theme.surface }]}>
+          <MaterialIcons name="account-circle" size={48} color={AppColors.primary} />
+          <View style={styles.profileInfo}>
+            <Text style={[AppTextStyles.titleMedium, { color: theme.onSurface }]}>
+              {user?.email ?? 'User'}
+            </Text>
+            <Text style={[AppTextStyles.bodySmall, { color: theme.onSurfaceVariant }]}>
+              Signed in
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ height: 24 }} />
+
         {/* Diet Preference */}
         <Text style={[AppTextStyles.titleMedium, { color: theme.onSurface }]}>
           Diet Preference
@@ -172,6 +203,19 @@ export default function SettingsScreen() {
           <MaterialIcons name="delete-outline" size={20} color={AppColors.error} />
           <Text style={[styles.clearButtonText, { color: AppColors.error }]}>
             Clear All Favorites
+          </Text>
+        </Pressable>
+
+        <View style={{ height: 12 }} />
+
+        {/* Log Out */}
+        <Pressable
+          onPress={handleLogout}
+          style={[styles.clearButton, { borderColor: AppColors.error }]}
+        >
+          <MaterialIcons name="logout" size={20} color={AppColors.error} />
+          <Text style={[styles.clearButtonText, { color: AppColors.error }]}>
+            Log Out
           </Text>
         </Pressable>
 
@@ -258,6 +302,16 @@ const styles = StyleSheet.create({
   clearButtonText: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 14,
+  },
+  profileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    gap: 12,
+  },
+  profileInfo: {
+    flex: 1,
   },
   aboutBox: {
     width: '100%',

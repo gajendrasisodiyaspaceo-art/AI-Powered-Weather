@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
-import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetTextInput, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AppColors } from '../config/colors';
 import { useAppTheme } from '../hooks/useAppTheme';
@@ -9,10 +9,11 @@ import { LocationData } from '../models/LocationData';
 import * as storageService from '../services/storageService';
 
 interface CitySearchSheetProps {
+  visible: boolean;
   onClose: () => void;
 }
 
-export function CitySearchSheet({ onClose }: CitySearchSheetProps) {
+export function CitySearchSheet({ visible, onClose }: CitySearchSheetProps) {
   const theme = useAppTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['50%', '80%'], []);
@@ -22,27 +23,21 @@ export function CitySearchSheet({ onClose }: CitySearchSheetProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchHistory, setSearchHistory] = useState<LocationData[]>([]);
 
-  const locationStatus = useLocationStore((s) => s.status);
-  const locationError = useLocationStore((s) => s.error);
   const setManualLocation = useLocationStore((s) => s.setManualLocation);
   const useGpsLocation = useLocationStore((s) => s.useGpsLocation);
   const selectHistoryLocation = useLocationStore((s) => s.selectHistoryLocation);
 
+  // Reset state and reload history each time the sheet opens
   useEffect(() => {
-    storageService.loadSearchHistory().then(setSearchHistory);
-  }, []);
-
-  // Watch for location state changes
-  useEffect(() => {
-    if (isSearching && locationStatus === 'loaded') {
-      onClose();
-    } else if (isSearching && locationStatus === 'error') {
-      setError(locationError ?? 'Something went wrong');
+    if (visible) {
+      setQuery('');
+      setError(null);
       setIsSearching(false);
+      storageService.loadSearchHistory().then(setSearchHistory);
     }
-  }, [locationStatus, isSearching]);
+  }, [visible]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const trimmed = query.trim();
     if (!trimmed) {
       setError('Please enter a city name');
@@ -50,19 +45,40 @@ export function CitySearchSheet({ onClose }: CitySearchSheetProps) {
     }
     setError(null);
     setIsSearching(true);
-    setManualLocation(trimmed);
+    await setManualLocation(trimmed);
+    const { status, error: storeError } = useLocationStore.getState();
+    setIsSearching(false);
+    if (status === 'loaded') {
+      onClose();
+    } else {
+      setError(storeError ?? 'Something went wrong');
+    }
   };
 
-  const handleUseGps = () => {
+  const handleUseGps = async () => {
     setError(null);
     setIsSearching(true);
-    useGpsLocation();
+    await useGpsLocation();
+    const { status, error: storeError } = useLocationStore.getState();
+    setIsSearching(false);
+    if (status === 'loaded') {
+      onClose();
+    } else {
+      setError(storeError ?? 'Failed to get location');
+    }
   };
 
-  const handleSelectHistory = (location: LocationData) => {
+  const handleSelectHistory = async (location: LocationData) => {
     setError(null);
     setIsSearching(true);
-    selectHistoryLocation(location);
+    await selectHistoryLocation(location);
+    const { status, error: storeError } = useLocationStore.getState();
+    setIsSearching(false);
+    if (status === 'loaded') {
+      onClose();
+    } else {
+      setError(storeError ?? 'Something went wrong');
+    }
   };
 
   const handleSheetChanges = useCallback(
@@ -72,13 +88,22 @@ export function CitySearchSheet({ onClose }: CitySearchSheetProps) {
     [onClose]
   );
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} />
+    ),
+    []
+  );
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      index={0}
+      index={visible ? 0 : -1}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
       enablePanDownToClose
+      enableDynamicSizing={false}
+      backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: theme.surface }}
       handleIndicatorStyle={{ backgroundColor: theme.outlineVariant }}
       keyboardBehavior="interactive"
@@ -101,7 +126,6 @@ export function CitySearchSheet({ onClose }: CitySearchSheetProps) {
             placeholder="Search city..."
             placeholderTextColor={theme.onSurfaceVariant}
             style={[styles.input, { color: theme.onSurface }]}
-            autoFocus
             returnKeyType="search"
             onSubmitEditing={handleSubmit}
           />

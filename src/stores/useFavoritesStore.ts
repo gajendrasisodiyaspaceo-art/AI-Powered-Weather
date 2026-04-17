@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { FoodSuggestion } from '../models/FoodSuggestion';
-import * as storageService from '../services/storageService';
+import * as supabaseService from '../services/supabaseService';
 
 type Status = 'initial' | 'loaded';
 
@@ -12,6 +12,7 @@ interface FavoritesState {
   removeFavorite: (name: string) => Promise<void>;
   clearAllFavorites: () => Promise<void>;
   isFavorite: (name: string) => boolean;
+  reset: () => void;
 }
 
 export const useFavoritesStore = create<FavoritesState>((set, get) => ({
@@ -19,32 +20,42 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   favorites: [],
 
   loadFavorites: async () => {
-    const favorites = await storageService.loadFavorites();
+    const favorites = await supabaseService.loadFavorites();
     set({ status: 'loaded', favorites });
   },
 
   toggleFavorite: async (suggestion: FoodSuggestion) => {
     const current = get().favorites;
     const exists = current.some((f) => f.name === suggestion.name);
-    const updated = exists
-      ? current.filter((f) => f.name !== suggestion.name)
-      : [...current, suggestion];
-    await storageService.saveFavorites(updated);
-    set({ favorites: updated });
+
+    if (exists) {
+      // Remove: optimistic update then DB call
+      const updated = current.filter((f) => f.name !== suggestion.name);
+      set({ favorites: updated });
+      await supabaseService.removeFavorite(suggestion.name);
+    } else {
+      // Add: optimistic update then DB call
+      set({ favorites: [...current, suggestion] });
+      await supabaseService.saveFavorite(suggestion);
+    }
   },
 
   removeFavorite: async (name: string) => {
     const updated = get().favorites.filter((f) => f.name !== name);
-    await storageService.saveFavorites(updated);
     set({ favorites: updated });
+    await supabaseService.removeFavorite(name);
   },
 
   clearAllFavorites: async () => {
-    await storageService.saveFavorites([]);
     set({ favorites: [] });
+    await supabaseService.clearAllFavorites();
   },
 
   isFavorite: (name: string) => {
     return get().favorites.some((f) => f.name === name);
+  },
+
+  reset: () => {
+    set({ status: 'initial', favorites: [] });
   },
 }));

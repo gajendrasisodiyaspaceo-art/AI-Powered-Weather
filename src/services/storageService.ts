@@ -1,39 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserPreferences, defaultPreferences, userPreferencesFromJson, userPreferencesToJson } from '../models/UserPreferences';
-import { FoodSuggestion, foodSuggestionFromJson, foodSuggestionToJson } from '../models/FoodSuggestion';
 import { LocationData, locationDataFromJson, locationDataToJson } from '../models/LocationData';
 
 const KEYS = {
-  USER_PREFERENCES: 'user_preferences',
-  FAVORITES: 'favorites',
   SELECTED_LOCATION: 'selected_location',
   CACHED_WEATHER: 'cached_weather',
   SEARCH_HISTORY: 'search_history',
 };
-
-// User Preferences
-export async function savePreferences(preferences: UserPreferences): Promise<void> {
-  await AsyncStorage.setItem(KEYS.USER_PREFERENCES, JSON.stringify(userPreferencesToJson(preferences)));
-}
-
-export async function loadPreferences(): Promise<UserPreferences> {
-  const json = await AsyncStorage.getItem(KEYS.USER_PREFERENCES);
-  if (!json) return defaultPreferences;
-  return userPreferencesFromJson(JSON.parse(json));
-}
-
-// Favorites
-export async function saveFavorites(favorites: FoodSuggestion[]): Promise<void> {
-  const jsonList = favorites.map((f) => JSON.stringify(foodSuggestionToJson(f)));
-  await AsyncStorage.setItem(KEYS.FAVORITES, JSON.stringify(jsonList));
-}
-
-export async function loadFavorites(): Promise<FoodSuggestion[]> {
-  const raw = await AsyncStorage.getItem(KEYS.FAVORITES);
-  if (!raw) return [];
-  const jsonList: string[] = JSON.parse(raw);
-  return jsonList.map((s) => foodSuggestionFromJson(JSON.parse(s)));
-}
 
 // Selected location
 export async function saveSelectedLocation(location: LocationData): Promise<void> {
@@ -91,6 +63,11 @@ export async function clearSearchHistory(): Promise<void> {
   await AsyncStorage.removeItem(KEYS.SEARCH_HISTORY);
 }
 
+// Clear only app-specific keys (not Supabase session tokens)
 export async function clearAll(): Promise<void> {
-  await AsyncStorage.clear();
+  await AsyncStorage.multiRemove([
+    KEYS.SELECTED_LOCATION,
+    KEYS.CACHED_WEATHER,
+    KEYS.SEARCH_HISTORY,
+  ]);
 }

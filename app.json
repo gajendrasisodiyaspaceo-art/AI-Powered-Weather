@@ -44,7 +44,8 @@
           "locationAlwaysAndWhenInUsePermission": "MausamChef uses your location to check the weather and suggest the perfect food for your area.",
           "locationWhenInUsePermission": "MausamChef uses your location to check the weather and suggest the perfect food for your area."
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

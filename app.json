@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.MausamChefRN"
+      "bundleIdentifier": "com.mausamchef.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +28,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.anonymous.MausamChefRN"
+      "package": "com.mausamchef.app"
     },
     "web": {
       "bundler": "metro",

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MausamChef - Play Store Screenshots</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    padding: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+  }
+  h1 {
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  .instructions {
+    width: 100%;
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .frame {
+    width: 1080px;
+    height: 1920px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .frame .caption {
+    padding: 80px 60px 30px;
+    text-align: center;
+    z-index: 2;
+  }
+  .frame .caption h2 {
+    font-size: 52px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .frame .caption p {
+    font-size: 24px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 10px;
+    font-weight: 500;
+  }
+  .frame .phone-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 2;
+    padding: 0 60px;
+  }
+  .frame .phone {
+    width: 520px;
+    border-radius: 36px 36px 0 0;
+    overflow: hidden;
+    box-shadow: 0 -10px 60px rgba(0,0,0,0.3);
+    border: 8px solid #222;
+    border-bottom: none;
+    background: #222;
+  }
+  .frame .phone img {
+    width: 100%;
+    display: block;
+    margin-top: -80px; /* crop status bar */
+  }
+
+  /* Gradient backgrounds for each screenshot */
+  .bg-orange {
+    background: linear-gradient(160deg, #FF6B35, #E85A2A, #D44A1A);
+  }
+  .bg-dark {
+    background: linear-gradient(160deg, #1a1a2e, #2d1b4e, #1a1a2e);
+  }
+  .bg-blue {
+    background: linear-gradient(160deg, #3B82F6, #1D4ED8, #1E40AF);
+  }
+  .bg-green {
+    background: linear-gradient(160deg, #10B981, #059669, #047857);
+  }
+  .bg-pink {
+    background: linear-gradient(160deg, #EC4899, #DB2777, #BE185D);
+  }
+  .bg-purple {
+    background: linear-gradient(160deg, #8B5CF6, #7C3AED, #6D28D9);
+  }
+
+  /* Decorative circles */
+  .frame::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 350px;
+    height: 350px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .frame::after {
+    content: '';
+    position: absolute;
+    bottom: 200px;
+    left: -60px;
+    width: 250px;
+    height: 250px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  /* Scale down for preview */
+  .preview-mode .frame {
+    transform: scale(0.3);
+    transform-origin: top center;
+    margin-bottom: -1340px;
+  }
+</style>
+</head>
+<body class="preview-mode">
+
+<h1>MausamChef - Play Store Screenshots (1080x1920 each)</h1>
+<p class="instructions">
+  To export: Remove "preview-mode" class from body, then right-click each frame → Inspect → Screenshot node.
+  <br>Or use: <code>window.document.body.classList.remove('preview-mode')</code> in console, then screenshot each .frame element.
+</p>
+
+<!-- Screenshot 1: Home Light -->
+<div class="frame bg-orange" id="ss1">
+  <div class="caption">
+    <h2>AI-Powered Food<br>for Every Weather</h2>
+    <p>Smart suggestions based on your location</p>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone">
+      <img src="raw_home_light.png" alt="Home Screen Light">
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot 2: Home Dark -->
+<div class="frame bg-dark" id="ss2">
+  <div class="caption">
+    <h2>Beautiful<br>Dark Mode</h2>
+    <p>Easy on the eyes, day and night</p>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone">
+      <img src="raw_home_dark.png" alt="Home Screen Dark">
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot 3: Food Detail -->
+<div class="frame bg-green" id="ss3">
+  <div class="caption">
+    <h2>Detailed<br>Food Info</h2>
+    <p>Ingredients, calories & one-tap recipes</p>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone">
+      <img src="raw_food_detail.png" alt="Food Detail">
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot 4: Favorites -->
+<div class="frame bg-pink" id="ss4">
+  <div class="caption">
+    <h2>Save Your<br>Favorites</h2>
+    <p>Quick access to dishes you love</p>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone">
+      <img src="raw_favorites.png" alt="Favorites">
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot 5: Settings -->
+<div class="frame bg-blue" id="ss5">
+  <div class="caption">
+    <h2>Personalized<br>For You</h2>
+    <p>Diet, health goals & language preferences</p>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone">
+      <img src="raw_settings_light.png" alt="Settings">
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot 6: Login -->
+<div class="frame bg-purple" id="ss6">
+  <div class="caption">
+    <h2>Easy &<br>Secure Login</h2>
+    <p>Your data stays private and safe</p>
+  </div>
+  <div class="phone-wrapper">
+    <div class="phone">
+      <img src="raw_login.png" alt="Login">
+    </div>
+  </div>
+</div>
+
+<script>
+// Helper to export individual screenshots
+// Open browser console and run: exportScreenshot(1) through exportScreenshot(6)
+async function exportScreenshot(num) {
+  document.body.classList.remove('preview-mode');
+  const el = document.getElementById('ss' + num);
+  el.scrollIntoView();
+  alert('Screenshot #' + num + ' is now full size. Use browser screenshot or Ctrl+Shift+P → "Capture node screenshot" in DevTools on #ss' + num);
+}
+</script>
+
+</body>
+</html>
